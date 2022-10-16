@@ -1,6 +1,9 @@
 # Simple Debug
 Simple Debug helps you set and unset breakpoints from within emacs that lldb can parse and set.
 
+<img width="1048" alt="Screenshot 2022-10-16 at 22 44 17" src="https://user-images.githubusercontent.com/5260991/196059727-b72b25e0-13ad-4be8-8978-f553f5c3f88a.png">
+
+
 ## How does it work
 Simple Debug creates a minor mode called "simple-debug" with `SiD` lighter. It adds itself to `c-mode-common-hook` so its invoked for C/C++ files. It binds <F6> key to `simple-debug-toggle-line-breakpoint` and <F7> key to `simple-debug-toggle-function-breakpoint`. This way pressing <F6> on any line creates a `line` breakpoint in the current file. Similarly pressing <F7> anywhere in the body of a function creates a `function` breakpoint.
 
