@@ -8,9 +8,6 @@
 (require 'cl-lib)
 (require 'projectile)
 
-;; To make sure json-encode prints pretty for this package (buffer)
-(setq-local json-encoding-pretty-print t)
-
 (defface simple-debug-breakpoint-face
   '((t :distant-foreground "white"
 	   :box (:line-width -1 :color "red")))
@@ -87,7 +84,8 @@ File must be absolute path to file."
 	  (progn
 		(let* ((updated-breakpoints (simple-debug-get-updated-breakpoints-list)))
 		  (puthash "breakpoints" updated-breakpoints simple-debug-json-breakpoints))
-		(simple-debug-flush-breakpoints-list simple-debug-breakpoints-file-path (json-encode simple-debug-all-breakpoints)))))
+		(let ((json-encoding-pretty-print t))                ;; To make sure json-encode prints pretty for this package (buffer)
+		  (simple-debug-flush-breakpoints-list simple-debug-breakpoints-file-path (json-encode simple-debug-all-breakpoints))))))
 
 ;; Coming backwards from bottom, this is the last function needed for boot time init
 (defun simple-debug-save-remove-breakpoint (overlay linenumber function)
@@ -190,8 +188,6 @@ And set the global simple-debug-breakpoint-file-path variable pointing to it."
   "Toggle a breakpoint on current function."
   (interactive)
   )
-
-(global-set-key (kbd "<f6>") 'simple-debug-toggle-line-breakpoint)
 
 ;; From https://nullprogram.com/blog/2013/02/06/
 ;;;###autoload
