@@ -1,5 +1,5 @@
 # Simple Debug
-Simple Debug is helps you set and unset breakpoints from within emacs that lldb can parse and set.
+Simple Debug helps you set and unset breakpoints from within emacs that lldb can parse and set.
 
 ## How does it work
 Simple Debug creates a minor mode called "simple-debug" with `SiD` lighter. It adds itself to `c-mode-common-hook` so its invoked for C/C++ files. It binds <F6> key to `simple-debug-toggle-line-breakpoint` and <F7> key to `simple-debug-toggle-function-breakpoint`. This way pressing <F6> on any line creates a `line` breakpoint in the current file. Similarly pressing <F7> anywhere in the body of a function creates a `function` breakpoint.
@@ -18,7 +18,7 @@ To try this out first clone the repo and then run the following commands.
 git clone https://github.com/abbaswasim/simple-debug.git && cd simple-debug
 ```
 
-Open `simple-debug.el` in `emacs` and call `eval-buffer`. Now you can open any C/C++ file within your `projectile` project to add/remove breakpoints. Once done in emacs. Load lldb on your executable and load the python script to install all the breakpoints.
+Open `simple-debug.el` in `emacs` and call `eval-buffer`. Now you can open any C/C++ file within your `projectile` project to add/remove breakpoints. Once done in emacs. Load your executable in lldb and load the python script to install all the breakpoints.
 
 ```
 command script import /root/of/simple-debug/simple_debug_lldb_breakpoints.py
