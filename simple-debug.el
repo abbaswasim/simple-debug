@@ -174,8 +174,6 @@ And set the global simple-debug-breakpoint-file-path variable pointing to it."
 		(simple-debug-flush-breakpoints-list filename "[]"))
 	(simple-debug-load-file-breakpoints (buffer-file-name)))))
 
-;; (remove-overlays)
-
 (defun simple-debug-toggle-line-breakpoint ()
   "Toggle a breakpoint on current line."
   (interactive)
