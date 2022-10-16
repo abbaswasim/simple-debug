@@ -6,9 +6,6 @@ from os.path import exists
 import lldb
 import json
 
-def create_breakpoints(breakpoint_data):
-    print("yes")
-
 def load_simple_debug_json(debugger):
     file_name = ".simple-debug.json" 
     found_file_name = "" 
