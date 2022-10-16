@@ -15,5 +15,6 @@ You can also add this to your `.lldbinit` file to load any project `.simple-debu
 - Projectile
 
 ## Limitation
-- At the moment after editing your source files. The debug marker moves fine but the actual breakpoint location doesn't change. This requires constant update to the breakpoint line numbers which has performance issues.
+- At the moment after editing your source files. The debug marker moves fine but the actual breakpoint location doesn't change. This requires constant update to the breakpoint line numbers which has performance implications.
 - Enabling and disabling the minor mode multiple times gets confused. Only one shot at the moment.
+- No function breakpoints implemented yet.
