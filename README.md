@@ -32,3 +32,7 @@ command script import /root/of/simple-debug/simple_debug_lldb_breakpoints.py
 - At the moment after editing your source files. The debug marker moves fine but the actual breakpoint location doesn't change. This requires constant update to the breakpoint line numbers which has performance implications.
 - Enabling and disabling the minor mode multiple times gets confused. Only one shot at the moment.
 - Function breakpoints can only be used by selecting the function name cleanly. Ideally I would read th function name somehow from anywhere within its body.
+
+## To fix
+- Need a method to reset all breakpoints
+- A method to update breakpoints according to the `overlays` in the source file
