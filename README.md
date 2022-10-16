@@ -39,3 +39,4 @@ command script import /root/of/simple-debug/simple_debug_lldb_breakpoints.py
 ## To fix
 - Need a method to reset all breakpoints
 - A method to update breakpoints according to the `overlays` in the source file
+- Very complex for this usecase but maybe in the futuer migrate to using lldb syntax for the breakpoints itself
