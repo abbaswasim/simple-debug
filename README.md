@@ -10,6 +10,20 @@ These breakpoints are written out into `.simple-debug.json` file in your project
 
 You can also add this to your `.lldbinit` file to load any project `.simple-debug.json` files on start up (its also possible to create a project specific `.lldbinit` but its not the best practice).
 
+## Getting started
+
+To try this out first clone the repo and then run the following commands.
+
+```
+git clone https://github.com/abbaswasim/simple-debug.git && cd simple-debug
+```
+
+Open `simple-debug.el` in `emacs` and call `eval-buffer`. Now you can open any C/C++ file within your `projectile` project to add/remove breakpoints. Once done in emacs. Load lldb on your executable and load the python script to install all the breakpoints.
+
+```
+command script import /root/of/simple-debug/simple_debug_lldb_breakpoints.py
+```
+
 ## Requirements
 - Json
 - Projectile
