@@ -187,7 +187,11 @@ And set the global simple-debug-breakpoint-file-path variable pointing to it."
 (defun simple-debug-toggle-function-breakpoint ()
   "Toggle a breakpoint on current function."
   (interactive)
-  )
+  (let ((line (line-number-at-pos))
+		(function (buffer-substring (region-beginning) (region-end))))
+	(progn
+	  (simple-debug-toggle-breakpoint line function)
+	  (simple-debug-refresh-breakpoints-file))))
 
 ;; From https://nullprogram.com/blog/2013/02/06/
 ;;;###autoload
