@@ -41,3 +41,4 @@ command script import /root/of/simple-debug/simple_debug_lldb_breakpoints.py
 - A method to update breakpoints according to the `overlays` in the source file
 - Very complex for this usecase but maybe in the future migrate to using lldb syntax for the breakpoints itself
 - Navigation of breakpoints accross the project to easily add/remove them
+- Create an equivalent gdb script
