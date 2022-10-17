@@ -142,6 +142,21 @@ Only checks for overlays with PROP."
 		 (json-key-type 'string))
 	(json-read-file file-path)))
 
+
+(defun simple-debug-find-file-in-all-breakpoints (filename)
+  "Find FILENAME in simple-debug-all-breakpoints.
+And set simple-debug-json-breakpoints pointer to it."
+  (progn
+	(dolist (breakpoints simple-debug-all-breakpoints)
+	  (let ((file (gethash "file" breakpoints)))
+		(if (string= filename file)
+			(setq simple-debug-json-breakpoints breakpoints))))
+	;; if simple-debug-json-breakpoints is still nil lets create one
+	(if (equal simple-debug-json-breakpoints nil)
+		(progn
+		  (setq simple-debug-json-breakpoints (simple-debug-create-empty-hash-table filename))
+		  (push simple-debug-json-breakpoints simple-debug-all-breakpoints)))))
+
 (defun simple-debug-load-file-breakpoints (filename)
   "Load all breakpoints for FILENAME from .simple-debug.json file."
   (progn
@@ -149,18 +164,13 @@ Only checks for overlays with PROP."
 	(setq simple-debug-all-breakpoints (simple-debug-get-breakpoints-list simple-debug-breakpoints-file-path))
 	(if (equal simple-debug-all-breakpoints nil)
 		(setq simple-debug-all-breakpoints (simple-debug-create-empty-list filename)))
+	(simple-debug-find-file-in-all-breakpoints filename)
 	;; now iterate through the list finding current file name
-	(dolist (breakpoints simple-debug-all-breakpoints)
-	  (let ((file (gethash "file" breakpoints))
-			(bpoints (gethash "breakpoints" breakpoints)))
-		(if (string= filename file)
-			(progn
-			  ;; if found current file list entry, lets save it for later use
-			  (setq simple-debug-json-breakpoints breakpoints)
-			  (dolist (bpoint bpoints)
-				(let ((l (gethash "line" bpoint))
-					  (f (gethash "function" bpoint)))
-				  (simple-debug-toggle-breakpoint l f)))))))))
+	(let ((bpoints (gethash "breakpoints" simple-debug-json-breakpoints)))
+	  (dolist (bpoint bpoints)
+		(let ((l (gethash "line" bpoint))
+			  (f (gethash "function" bpoint)))
+		  (simple-debug-toggle-breakpoint l f))))))
 
 (defun simple-debug-find-breakpoints-file ()
 "Find simple-debug-breakpoints-file(.simple-debug.json) in projectile root.
