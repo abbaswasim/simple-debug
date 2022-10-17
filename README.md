@@ -36,7 +36,8 @@ command script import /root/of/simple-debug/simple_debug_lldb_breakpoints.py
 - Enabling and disabling the minor mode multiple times gets confused. Only one shot at the moment.
 - Function breakpoints can only be used by selecting the function name cleanly. Ideally I would read the function name somehow from anywhere within its body.
 
-## To fix
+## Wishlist
 - Need a method to reset all breakpoints
 - A method to update breakpoints according to the `overlays` in the source file
 - Very complex for this usecase but maybe in the future migrate to using lldb syntax for the breakpoints itself
+- Navigation of breakpoints accross the project to easily add/remove them
