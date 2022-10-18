@@ -21,19 +21,10 @@
  (defvar simple-debug-breakpoints-file-path nil
    "Breakpoints file path where all the breakpoints are saved."))
 
-(make-variable-buffer-local
- (defvar simple-debug-all-breakpoints nil
-   "A json object found in .simple-debug.json containing all breakpoints."))
-
 ;; This is a hash-table containing elements of (linenumber -> function) key value pairs
 (make-variable-buffer-local
  (defvar simple-debug-file-breakpoints nil
    "All the breakpoints in the current buffer."))
-
-;; This is a a pointer pointing at the json entry for the current file
-(make-variable-buffer-local
- (defvar simple-debug-json-breakpoints nil
-   "This is a a pointer pointing at the json entry for the current file."))
 
 (defun simple-debug-create-line-hash-table (line)
   "Create a hash table for LINE."
@@ -78,16 +69,35 @@ File must be absolute path to file."
 			 simple-debug-file-breakpoints)
 	lst))
 
+(defun simple-debug-get-breakpoints-list (file-path)
+  "Read out FILE-PATH(.simple-debug.json) file and fill out a json object."
+  (let* ((json-object-type 'hash-table)
+		 (json-array-type 'list)
+		 (json-key-type 'string))
+	(json-read-file file-path)))
+
+(defun simple-debug-get-breakpoints-list-exclusive (filename)
+  "Find FILENAME in all breakpoints."
+  (let ((all-breakpoints (simple-debug-get-breakpoints-list simple-debug-breakpoints-file-path))
+		(exclusive-breakpoints (list)))
+	(if all-breakpoints
+		(dolist (breakpoints all-breakpoints)
+		  (let ((file (gethash "file" breakpoints)))
+			(if (not (string= filename file))
+				(push breakpoints exclusive-breakpoints)))))
+	exclusive-breakpoints))
+
 (defun simple-debug-refresh-breakpoints-file ()
   "Write out updated breakpoints status into .simple-debug.json."
-  (if simple-debug-json-breakpoints
-	  (progn
-		(let* ((updated-breakpoints (simple-debug-get-updated-breakpoints-list)))
-		  (puthash "breakpoints" updated-breakpoints simple-debug-json-breakpoints))
-		(let ((json-encoding-pretty-print t))                ;; To make sure json-encode prints pretty for this package (buffer)
-		  (simple-debug-flush-breakpoints-list simple-debug-breakpoints-file-path (json-encode simple-debug-all-breakpoints))))))
+  (let ((updated-breakpoints (simple-debug-get-updated-breakpoints-list))
+		(json-breakpoints (simple-debug-create-empty-hash-table (buffer-file-name)))
+		(all-breakpoints (simple-debug-get-breakpoints-list-exclusive (buffer-file-name))))
+	(progn
+	  (puthash "breakpoints" updated-breakpoints json-breakpoints)
+	  (push json-breakpoints all-breakpoints)
+	  (let ((json-encoding-pretty-print t))                ;; To make sure json-encode prints pretty for this package (buffer)
+		(simple-debug-flush-breakpoints-list simple-debug-breakpoints-file-path (json-encode all-breakpoints))))))
 
-;; Coming backwards from bottom, this is the last function needed for boot time init
 (defun simple-debug-save-remove-breakpoint (overlay linenumber function)
   "Save simple-debug breakpoint in the current buffer.
 Breakpoint is an object of OVERLAY and its LINENUMBER plus FUNCTION."
@@ -135,42 +145,28 @@ Only checks for overlays with PROP."
 		(let* ((debug-overlay (simple-debug-toggle-line-highlights startpos endpos)))
 		  (simple-debug-save-remove-breakpoint debug-overlay line function))))))
 
-(defun simple-debug-get-breakpoints-list (file-path)
-  "Read out FILE-PATH(.simple-debug.json) file and fill out a json object."
-  (let* ((json-object-type 'hash-table)
-		 (json-array-type 'list)
-		 (json-key-type 'string))
-	(json-read-file file-path)))
-
-
-(defun simple-debug-find-file-in-all-breakpoints (filename)
-  "Find FILENAME in simple-debug-all-breakpoints.
-And set simple-debug-json-breakpoints pointer to it."
-  (progn
-	(dolist (breakpoints simple-debug-all-breakpoints)
-	  (let ((file (gethash "file" breakpoints)))
-		(if (string= filename file)
-			(setq simple-debug-json-breakpoints breakpoints))))
-	;; if simple-debug-json-breakpoints is still nil lets create one
-	(if (equal simple-debug-json-breakpoints nil)
-		(progn
-		  (setq simple-debug-json-breakpoints (simple-debug-create-empty-hash-table filename))
-		  (push simple-debug-json-breakpoints simple-debug-all-breakpoints)))))
+(defun simple-debug-find-file-breakpoints (filename)
+  "Find FILENAME in all breakpoints."
+  (let ((all-breakpoints (simple-debug-get-breakpoints-list simple-debug-breakpoints-file-path))
+		(json-breakpoints nil))
+	(if all-breakpoints
+		(dolist (breakpoints all-breakpoints)
+		  (let ((file (gethash "file" breakpoints)))
+			(if (string= filename file)
+				(setq json-breakpoints breakpoints)))))
+	json-breakpoints))
 
 (defun simple-debug-load-file-breakpoints (filename)
   "Load all breakpoints for FILENAME from .simple-debug.json file."
   (progn
-	;; first populate the global list for all breakpoints
-	(setq simple-debug-all-breakpoints (simple-debug-get-breakpoints-list simple-debug-breakpoints-file-path))
-	(if (equal simple-debug-all-breakpoints nil)
-		(setq simple-debug-all-breakpoints (simple-debug-create-empty-list filename)))
-	(simple-debug-find-file-in-all-breakpoints filename)
-	;; now iterate through the list finding current file name
-	(let ((bpoints (gethash "breakpoints" simple-debug-json-breakpoints)))
-	  (dolist (bpoint bpoints)
-		(let ((l (gethash "line" bpoint))
-			  (f (gethash "function" bpoint)))
-		  (simple-debug-toggle-breakpoint l f))))))
+	(let* ((json-breakpoints (simple-debug-find-file-breakpoints filename)))
+	  (if json-breakpoints
+		  (let ((bpoints (gethash "breakpoints" json-breakpoints)))
+			(if bpoints
+				(dolist (bpoint bpoints)
+				  (let ((l (gethash "line" bpoint))
+						(f (gethash "function" bpoint)))
+					(simple-debug-toggle-breakpoint l f)))))))))
 
 (defun simple-debug-find-breakpoints-file ()
 "Find simple-debug-breakpoints-file(.simple-debug.json) in projectile root.
