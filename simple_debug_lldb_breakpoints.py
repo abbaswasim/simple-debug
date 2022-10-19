@@ -38,11 +38,13 @@ def load_simple_debug_json(debugger):
                         else:
                             line_num = breakpoint_locations["line"]
                             debugger.HandleCommand('breakpoint set -f ' + src_file_name + " -l " + str(line_num))
+        return True
     else:
         print("Couldn't find .simple-debug.json file in the project or its parents.")
+        return False
 
 # And the initialization code to add your commands 
 def __lldb_init_module(debugger, dict):
-    load_simple_debug_json(debugger)
-    print("simple-debug created the following breakpoints:")
-    debugger.HandleCommand('breakpoint list')
+    if load_simple_debug_json(debugger):
+        print("simple-debug created the following breakpoints:")
+        debugger.HandleCommand('breakpoint list')
